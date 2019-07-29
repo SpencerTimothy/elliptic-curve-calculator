@@ -1,0 +1,68 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue May 14 00:43:30 2019
+
+@author: spencer
+"""
+
+import math
+
+#Define greatest common denominator calculator
+
+def egcd(a, b):
+    if a == 0:
+        return (b, 0, 1)
+    else:
+        g, y, x = egcd(b % a, a)
+        return (g, x - (b // a) * y, y)
+
+#Define modular inverse calculator
+
+def modinv(a, m):
+    g, x, y = egcd(a, m)
+    if g != 1:
+        raise Exception('modular inverse does not exist')
+        
+    else:
+        return x % m    
+        
+def hcfnaive(a,b): 
+    if(b==0): 
+        return a 
+    else: 
+        return hcfnaive(b,a%b)
+
+######Elliptic curve equation: y^2 = x^3+2x-3 #######
+
+modulo = 2501
+x_p = 1
+y_p = 1
+
+print "\nP(x,y) is: p(%d,%d)\n" %(x_p,y_p)
+#print (modinv(2*y_p,modulo))
+
+dydx = ((3*(x_p**2) - 2)*modinv(2*y_p,modulo) % modulo) #slope of line through P
+print "The slope of the tangent line at P(%d,%d) is: %d\n" %(x_p,y_p,dydx)
+
+#####want this line to print out when gcd is > 1#####
+print "Gcd of dy/dx is:", hcfnaive((3*(x_p**2) - 2),modinv(2*y_p,modulo) % modulo)
+
+######P+Q+R=0 => P+Q=-R where -R = (x_r,-y_r)######
+
+x_r = ((dydx**2 - x_p - x_p) % modulo) #intersection of line though P and P
+y_r = ((y_p + dydx*(x_r - x_p)) % modulo)
+
+print ("The intersection of the tangent line through the point P(%d,%d)" %(x_p,y_p))
+print ("on the curve y^2 = x^3+2x-3 is the point R=(%d,%d)." %(x_r,y_r))
+print ("Thus our new point 2p = P+P = -R = (%d,%d)\n" %(x_r,-y_r%modulo))
+
+#####To find 3P we must we add 2P+P = 3P or equivelently -R+P = 3p#####
+
+y_R = (-y_r % modulo)  #this is the new y coordinant for -R
+
+m = ((y_R - y_p)*(modinv(x_r - x_p,modulo))) #Slope of line through -R and P
+
+x_3p = ((m**2 - x_p - x_p) % modulo) 
+y_3p = ((y_p + dydx*(x_r - x_p)) % modulo)
+
+print ("New point 3P is the point 3P = (%d,%d)" %(x_3p,y_3p))
